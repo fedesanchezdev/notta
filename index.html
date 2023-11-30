@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>NOTTA</title>
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-5 text-center d-flex justify-content-center">NOTTA (Notice to Travel Agent)</h1>
+    <div id="data" class="mt-5"></div>
+</div>
+
+
+    <script>
+        fetch('https://docs.google.com/spreadsheets/d/19Spi9I2DttMWd27egMgzEj2FDkAdEK-A-BeI_fDB02Y/gviz/tq?tqx=out:json&gid=0')
+            .then(response => response.text())
+            .then(text => {
+                // Extraer el JSON de la respuesta
+                var jsonStartIndex = text.indexOf("{");
+                var jsonEndIndex = text.lastIndexOf("}") + 1;
+                var jsonString = text.substring(jsonStartIndex, jsonEndIndex);
+
+                // Analizar el JSON en un objeto JavaScript
+                var data = JSON.parse(jsonString);
+
+                // Obtener el elemento <div> donde se mostrarán las cards
+                var container = document.getElementById("data");
+
+                // Vaciar el contenedor antes de agregar las nuevas cards
+                container.innerHTML = "";
+
+                // Recorrer las filas y agregar cada número de NOTTA con sus datos asociados como una card en una línea separada
+                data.table.rows.forEach(row => {
+                    // Obtener los datos asociados a cada número de NOTTA
+                    var notta = row.c[0].v;
+                    var fecha = row.c[1].v;
+                    var lugar = row.c[2].v;
+                    var desde = row.c[3].v;
+                    var hasta = row.c[4].v;
+                    var accion = row.c[5].v;
+
+                    // Crear una cadena de HTML para mostrar los datos asociados como una card en una línea separada
+                    var cardHTML =
+                        `
+                        <div class="row mx-auto justify-content-center">
+                            <div class="col-xs-12">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">#${notta} - Asunto: ${lugar} - Publicado: ${fecha}</h5>
+                                        <p class="card-text">Validez:<br>Desde: <strong>${desde}</strong><br>Hasta: <strong>${hasta}</strong></p>
+                                        <p class="card-text">Informe:<br><strong>${accion}</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+
+                    // Agregar la cadena de HTML al contenedor
+                    container.insertAdjacentHTML('afterend', cardHTML);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+</body>
+</html>
